@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  trustHost: true,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -15,6 +16,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             "openid email profile https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.send",
           access_type: "offline",
           prompt: "consent",
+          response_type: "code",
         },
       },
     }),
