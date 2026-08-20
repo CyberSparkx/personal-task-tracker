@@ -1,0 +1,153 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  googleTokens  Json?     // encrypted OAuth tokens for Calendar/Gmail
+  vapidSubscription Json? // Web Push subscription object
+  tasks         Task[]
+  projects      Project[]
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  name      String
+  color     String?  @default("#6366f1")
+  icon      String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id              String       @id @default(cuid())
+  title           String
+  description     String?      @db.Text
+  status          TaskStatus   @default(TODO)
+  priority        Priority     @default(MEDIUM)
+  dueDate         DateTime?
+  estimatedMins   Int?
+  completedAt     DateTime?
+  googleEventId   String?      // links to the synced Calendar event
+  parentTaskId    String?      // for subtasks
+  parentTask      Task?        @relation("Subtasks", fields: [parentTaskId], references: [id])
+  subtasks        Task[]       @relation("Subtasks")
+  projectId       String?
+  project         Project?     @relation(fields: [projectId], references: [id])
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  markdownNotes   String?      @db.Text
+  tags            TaskTag[]
+  attachments     Attachment[]
+  reminders       Reminder[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Tag {
+  id    String    @id @default(cuid())
+  name  String    @unique
+  color String?   @default("#6366f1")
+  tasks TaskTag[]
+}
+
+model TaskTag {
+  taskId String
+  tagId  String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, tagId])
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  fileName  String
+  fileUrl   String   // MinIO object URL
+  fileType  String
+  sizeBytes Int
+  createdAt DateTime @default(now())
+}
+
+model Reminder {
+  id            String    @id @default(cuid())
+  taskId        String
+  task          Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  offsetMinutes Int       // e.g. 60 = remind 1hr before due
+  sentAt        DateTime?
+  channel       ReminderChannel @default(PUSH)
+}
+
+enum ReminderChannel {
+  PUSH
+  EMAIL
+  BOTH
+}
