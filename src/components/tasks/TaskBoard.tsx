@@ -2,8 +2,10 @@
 
 import { useState, useCallback } from "react";
 import { TaskCard } from "./TaskCard";
+import { KanbanBoard } from "./KanbanBoard";
 import { TaskModal } from "./TaskModal";
-import { LayoutGrid, List, Plus, Filter, SortAsc } from "lucide-react";
+import { LayoutGrid, List, Plus, Columns } from "lucide-react";
+
 
 type Task = {
   id: string;
@@ -41,7 +43,7 @@ export function TaskBoard({
   projects: Project[];
 }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [view, setView] = useState<"board" | "list">("board");
+  const [view, setView] = useState<"board" | "list" | "kanban">("board");
   const [showModal, setShowModal] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("");
@@ -85,7 +87,19 @@ export function TaskBoard({
               border: "1px solid hsl(var(--border))",
             }}
           >
-            <LayoutGrid size={15} /> Board
+            <LayoutGrid size={15} /> Simple
+          </button>
+          <button
+            id="view-kanban-btn"
+            onClick={() => setView("kanban")}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all"
+            style={{
+              background: view === "kanban" ? "hsl(var(--primary-muted))" : "hsl(var(--surface-elevated))",
+              color: view === "kanban" ? "hsl(var(--primary))" : "hsl(var(--text-secondary))",
+              border: "1px solid hsl(var(--border))",
+            }}
+          >
+            <Columns size={15} /> Kanban
           </button>
           <button
             id="view-list-btn"
@@ -210,6 +224,19 @@ export function TaskBoard({
             </div>
           )}
         </div>
+      )}
+
+      {/* Kanban D&D View */}
+      {view === "kanban" && (
+        <KanbanBoard
+          initialTasks={filteredTasks}
+          onEdit={(t) => { setEditTask(t as any); setShowModal(true); }}
+          onDelete={handleDelete}
+          onAddTask={(status) => {
+            setEditTask(null);
+            setShowModal(true);
+          }}
+        />
       )}
 
       {/* Task Modal */}
