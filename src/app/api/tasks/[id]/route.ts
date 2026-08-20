@@ -1,5 +1,10 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import {
+  createCalendarEvent,
+  updateCalendarEvent,
+  deleteCalendarEvent,
+} from "@/lib/google-calendar";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -104,6 +109,35 @@ export async function PATCH(req: Request, { params }: RouteParams) {
     },
   });
 
+  // Auto-sync updates to Google Calendar
+  try {
+    if (task.googleEventId) {
+      await updateCalendarEvent(session.user.id, task.googleEventId, {
+        title: task.title,
+        description: task.description,
+        dueDate: task.dueDate,
+        estimatedMins: task.estimatedMins,
+        status: task.status,
+      });
+    } else if (task.dueDate) {
+      const googleEventId = await createCalendarEvent(session.user.id, {
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        dueDate: task.dueDate,
+        estimatedMins: task.estimatedMins,
+      });
+      if (googleEventId) {
+        await prisma.task.update({
+          where: { id: task.id },
+          data: { googleEventId },
+        });
+      }
+    }
+  } catch (err: any) {
+    console.warn("[auto-calendar-sync-patch] skipped/failed:", err?.message);
+  }
+
   return NextResponse.json(task);
 }
 
@@ -118,6 +152,14 @@ export async function DELETE(_req: Request, { params }: RouteParams) {
   const existing = await getTaskOrFail(id, session.user.id);
   if (!existing) {
     return NextResponse.json({ error: "Task not found" }, { status: 404 });
+  }
+
+  if (existing.googleEventId) {
+    try {
+      await deleteCalendarEvent(session.user.id, existing.googleEventId);
+    } catch (err: any) {
+      console.warn("[auto-calendar-delete] skipped:", err?.message);
+    }
   }
 
   await prisma.task.delete({ where: { id } });

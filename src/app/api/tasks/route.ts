@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { createCalendarEvent } from "@/lib/google-calendar";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -102,6 +103,28 @@ export async function POST(req: Request) {
       reminders: true,
     },
   });
+
+  // Auto-sync to Google Calendar if due date is present
+  if (task.dueDate) {
+    try {
+      const googleEventId = await createCalendarEvent(session.user.id, {
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        dueDate: task.dueDate,
+        estimatedMins: task.estimatedMins,
+      });
+      if (googleEventId) {
+        await prisma.task.update({
+          where: { id: task.id },
+          data: { googleEventId },
+        });
+        (task as any).googleEventId = googleEventId;
+      }
+    } catch (err: any) {
+      console.warn("[auto-calendar-sync] skipped/failed:", err?.message);
+    }
+  }
 
   return NextResponse.json(task, { status: 201 });
 }

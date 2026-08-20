@@ -69,9 +69,15 @@ export async function createCalendarEvent(
     requestBody: {
       summary: task.title,
       description: task.description ?? "",
-      start: { dateTime: start.toISOString(), timeZone: "UTC" },
-      end: { dateTime: end.toISOString(), timeZone: "UTC" },
-      // Tag it so we can identify TaskFlow events later
+      start: { dateTime: start.toISOString() },
+      end: { dateTime: end.toISOString() },
+      reminders: {
+        useDefault: false,
+        overrides: [
+          { method: "popup", minutes: 30 },
+          { method: "popup", minutes: 10 },
+        ],
+      },
       extendedProperties: {
         private: { taskflowId: task.id },
       },
