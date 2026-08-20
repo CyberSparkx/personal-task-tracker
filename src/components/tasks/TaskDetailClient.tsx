@@ -55,7 +55,10 @@ export function TaskDetailClient({ task: initialTask, projects }: {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    if (res.ok) setTask((t) => ({ ...t, ...await res.json() }));
+    if (res.ok) {
+      const updated = await res.json();
+      setTask((t) => ({ ...t, ...updated }));
+    }
   };
 
   const exportPdf = async () => {
