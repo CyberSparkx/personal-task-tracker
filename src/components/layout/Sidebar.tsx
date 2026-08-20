@@ -10,6 +10,7 @@ import {
   Bell,
   Settings,
   Tag,
+  BarChart3,
   Zap,
 } from "lucide-react";
 
@@ -19,6 +20,7 @@ const navItems = [
   { href: "/dashboard/projects", icon: FolderKanban, label: "Projects" },
   { href: "/dashboard/calendar", icon: Calendar, label: "Calendar" },
   { href: "/dashboard/tags", icon: Tag, label: "Tags" },
+  { href: "/dashboard/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/dashboard/notifications", icon: Bell, label: "Notifications" },
 ];
 
@@ -82,7 +84,7 @@ export function Sidebar({ user }: { user?: User }) {
           style={{ color: "hsl(var(--text-secondary))" }}
         >
           {user?.image ? (
-            <img src={user.image} alt={user.name ?? ""} className="w-8 h-8 rounded-full ring-2" style={{ ringColor: "hsl(var(--border))" }} />
+            <img src={user.image} alt={user.name ?? ""} className="w-8 h-8 rounded-full" style={{ border: "2px solid hsl(var(--border))" }} />
           ) : (
             <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-xs">
               {user?.name?.[0] ?? "U"}
