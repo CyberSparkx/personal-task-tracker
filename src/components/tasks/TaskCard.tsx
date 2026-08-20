@@ -14,6 +14,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 type Task = {
   id: string;
@@ -98,15 +99,16 @@ export function TaskCard({
 
         {/* Title */}
         <div className="flex-1 min-w-0">
-          <span
-            className="text-sm font-medium"
+          <Link
+            href={`/dashboard/tasks/${task.id}`}
+            className="text-sm font-medium hover:underline cursor-pointer"
             style={{
               color: isDone ? "hsl(var(--text-muted))" : "hsl(var(--text-primary))",
               textDecoration: isDone ? "line-through" : "none",
             }}
           >
             {task.title}
-          </span>
+          </Link>
           {task.project && (
             <span className="ml-2 text-xs" style={{ color: task.project.color }}>
               {task.project.name}
@@ -161,15 +163,16 @@ export function TaskCard({
             <Circle size={18} style={{ color: "hsl(var(--text-muted))" }} />
           )}
         </button>
-        <span
-          className="flex-1 text-sm font-medium leading-tight"
+        <Link
+          href={`/dashboard/tasks/${task.id}`}
+          className="flex-1 text-sm font-medium leading-tight hover:underline cursor-pointer"
           style={{
             color: isDone ? "hsl(var(--text-muted))" : "hsl(var(--text-primary))",
             textDecoration: isDone ? "line-through" : "none",
           }}
         >
           {task.title}
-        </span>
+        </Link>
         <div className="relative">
           <button
             id={`task-menu-${task.id}`}
