@@ -2,8 +2,9 @@
 
 import { signOut } from "next-auth/react";
 import { Search, Bell, LogOut, Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TaskModal } from "@/components/tasks/TaskModal";
+import { CommandPalette } from "@/components/ui/CommandPalette";
 
 type User = {
   name?: string | null;
@@ -13,6 +14,19 @@ type User = {
 
 export function Topbar({ user }: { user?: User }) {
   const [showModal, setShowModal] = useState(false);
+  const [showPalette, setShowPalette] = useState(false);
+
+  // Global ⌘K / Ctrl+K shortcut
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setShowPalette(true);
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
 
   return (
     <>
@@ -20,23 +34,19 @@ export function Topbar({ user }: { user?: User }) {
         className="flex items-center gap-4 px-6 py-4 border-b glass"
         style={{ borderColor: "hsl(var(--border))" }}
       >
-        {/* Search */}
+        {/* Search — opens command palette */}
         <div className="flex-1 max-w-lg">
-          <div
-            className="flex items-center gap-3 px-4 py-2.5 rounded-xl"
+          <button
+            id="open-search-btn"
+            onClick={() => setShowPalette(true)}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left cursor-pointer"
             style={{
               background: "hsl(var(--surface-elevated))",
               border: "1px solid hsl(var(--border))",
             }}
           >
             <Search size={16} style={{ color: "hsl(var(--text-muted))" }} />
-            <input
-              id="global-search"
-              type="text"
-              placeholder="Search tasks, projects..."
-              className="flex-1 bg-transparent outline-none text-sm"
-              style={{ color: "hsl(var(--text-primary))" }}
-            />
+            <span className="flex-1 text-sm" style={{ color: "hsl(var(--text-muted))" }}>Search tasks, projects…</span>
             <kbd
               className="hidden sm:block text-xs px-1.5 py-0.5 rounded"
               style={{
@@ -47,7 +57,7 @@ export function Topbar({ user }: { user?: User }) {
             >
               ⌘K
             </kbd>
-          </div>
+          </button>
         </div>
 
         {/* Actions */}
@@ -103,6 +113,8 @@ export function Topbar({ user }: { user?: User }) {
           onCreated={() => setShowModal(false)}
         />
       )}
+
+      <CommandPalette open={showPalette} onClose={() => setShowPalette(false)} />
     </>
   );
 }
