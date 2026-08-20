@@ -40,5 +40,5 @@ export default async function TaskDetailPage({ params }: Props) {
     select: { id: true, name: true, color: true },
   });
 
-  return <TaskDetailClient task={task as any} projects={projects} />;
+  return <TaskDetailClient task={task as any} projects={projects as any} />;
 }

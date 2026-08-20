@@ -10,7 +10,7 @@
  */
 
 import { Worker, Queue } from "bullmq";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { createRedisConnection } from "@/lib/redis";
 import { sendReminderEmail, sendDailyDigestEmail } from "@/lib/email";
 import { sendPushNotification } from "@/lib/web-push";
@@ -59,7 +59,7 @@ const reminderWorker = new Worker(
       if (result === "expired") {
         await prisma.user.update({
           where: { id: userId },
-          data: { vapidSubscription: null },
+          data: { vapidSubscription: Prisma.DbNull },
         });
       }
     }
@@ -85,7 +85,7 @@ const digestWorker = new Worker(
     console.log("[digest] Sending daily digest to all users");
 
     const users = await prisma.user.findMany({
-      where: { email: { not: null } },
+      where: { email: { not: "" } },
       select: { id: true, email: true, name: true },
     });
 
@@ -198,20 +198,26 @@ const calendarWorker = new Worker(
 const digestQueue = new Queue("daily-digest", { connection: createRedisConnection() });
 
 async function scheduleDailyDigest() {
-  // Remove existing repeatable job to avoid duplicates on restart
-  const repeatableJobs = await digestQueue.getRepeatableJobs();
-  for (const job of repeatableJobs) {
-    await digestQueue.removeRepeatableByKey(job.key);
-  }
-  await digestQueue.add(
-    "daily",
-    {},
-    {
-      repeat: { pattern: "0 8 * * *" }, // 8:00 AM UTC every day
-      removeOnComplete: true,
+  try {
+    const q = digestQueue as any;
+    if (typeof q.getRepeatableJobs === "function") {
+      const repeatableJobs = await q.getRepeatableJobs();
+      for (const job of repeatableJobs) {
+        await q.removeRepeatableByKey(job.key);
+      }
     }
-  );
-  console.log("[worker] Daily digest scheduled at 8:00 AM UTC");
+    await digestQueue.add(
+      "daily",
+      {},
+      {
+        repeat: { pattern: "0 8 * * *" },
+        removeOnComplete: true,
+      } as any
+    );
+    console.log("[worker] Daily digest scheduled at 8:00 AM UTC");
+  } catch (err: any) {
+    console.warn("[worker] Could not schedule repeatable daily digest:", err.message);
+  }
 }
 
 // ─── Error handlers ───────────────────────────────────────────────────────────

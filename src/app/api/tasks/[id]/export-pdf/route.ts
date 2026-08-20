@@ -153,7 +153,7 @@ export async function GET(_req: Request, { params }: RouteParams) {
 
   try {
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    await page.setContent(html, { waitUntil: "networkidle0" as any });
 
     const pdfBuffer = await page.pdf({
       format: "A4",
@@ -161,7 +161,7 @@ export async function GET(_req: Request, { params }: RouteParams) {
       margin: { top: "0", right: "0", bottom: "0", left: "0" },
     });
 
-    return new Response(pdfBuffer, {
+    return new Response(Buffer.from(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${task.title.replace(/[^a-z0-9]/gi, "_")}.pdf"`,

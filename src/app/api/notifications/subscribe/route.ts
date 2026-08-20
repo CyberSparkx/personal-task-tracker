@@ -8,6 +8,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -37,7 +38,7 @@ export async function DELETE() {
 
   await prisma.user.update({
     where: { id: session.user.id },
-    data: { vapidSubscription: null },
+    data: { vapidSubscription: Prisma.DbNull },
   });
 
   return NextResponse.json({ success: true });
