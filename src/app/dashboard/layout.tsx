@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
+import { PwaInstallPrompt } from "@/components/pwa/PwaInstallPrompt";
 
 export default async function DashboardLayout({
   children,
@@ -19,6 +20,7 @@ export default async function DashboardLayout({
         <main className="flex-1 overflow-y-auto p-6">
           {children}
         </main>
+        <PwaInstallPrompt />
       </div>
     </div>
   );
