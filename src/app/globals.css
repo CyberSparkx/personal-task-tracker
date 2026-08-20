@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 222 47% 6%;
+    --background-secondary: 222 40% 9%;
+    --surface: 222 35% 12%;
+    --surface-elevated: 222 30% 15%;
+    --border: 222 25% 20%;
+    --border-subtle: 222 25% 16%;
+
+    --primary: 259 90% 66%;
+    --primary-hover: 259 90% 72%;
+    --primary-muted: 259 60% 20%;
+
+    --accent: 199 89% 58%;
+    --accent-muted: 199 60% 15%;
+
+    --success: 142 76% 48%;
+    --success-muted: 142 50% 12%;
+    --warning: 37 95% 58%;
+    --warning-muted: 37 60% 12%;
+    --danger: 0 84% 60%;
+    --danger-muted: 0 60% 12%;
+
+    --text-primary: 222 20% 95%;
+    --text-secondary: 222 15% 65%;
+    --text-muted: 222 12% 45%;
+
+    --radius: 0.75rem;
+    --radius-sm: 0.5rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+    --shadow: 0 4px 16px rgba(0,0,0,0.5);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
+
+    --font-inter: "Inter", sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: hsl(var(--background));
+    color: hsl(var(--text-primary));
+    font-family: var(--font-inter);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: hsl(var(--background)); }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--text-muted)); }
+
+  /* Selection */
+  ::selection {
+    background: hsl(var(--primary) / 0.3);
+    color: hsl(var(--text-primary));
+  }
+}
+
+/* ─── Utility classes ─── */
+@layer utilities {
+  .glass {
+    background: hsl(var(--surface) / 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border));
+  }
+
+  .glass-elevated {
+    background: hsl(var(--surface-elevated) / 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--border));
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .surface { background: hsl(var(--surface)); }
+  .surface-elevated { background: hsl(var(--surface-elevated)); }
+  .border-subtle { border-color: hsl(var(--border-subtle)); }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out forwards;
+  }
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out forwards;
+  }
+  .animate-shimmer {
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ─── Markdown editor dark theme override ─── */
+.w-md-editor {
+  background: hsl(var(--surface)) !important;
+  color: hsl(var(--text-primary)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+}
+.w-md-editor-toolbar {
+  background: hsl(var(--surface-elevated)) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+}
+.w-md-editor-text-textarea,
+.w-md-editor-text-pre > code {
+  color: hsl(var(--text-primary)) !important;
+  font-family: "JetBrains Mono", "Fira Code", monospace !important;
+  font-size: 14px !important;
+}
+.wmde-markdown {
+  background: transparent !important;
+  color: hsl(var(--text-primary)) !important;
+}
+
+/* ─── Priority badges ─── */
+.priority-urgent { background: hsl(var(--danger-muted)); color: hsl(var(--danger)); border: 1px solid hsl(var(--danger) / 0.3); }
+.priority-high   { background: hsl(var(--warning-muted)); color: hsl(var(--warning)); border: 1px solid hsl(var(--warning) / 0.3); }
+.priority-medium { background: hsl(var(--primary-muted)); color: hsl(var(--primary)); border: 1px solid hsl(var(--primary) / 0.3); }
+.priority-low    { background: hsl(var(--success-muted)); color: hsl(var(--success)); border: 1px solid hsl(var(--success) / 0.3); }
+
+/* ─── Status badges ─── */
+.status-todo        { background: hsl(var(--surface-elevated)); color: hsl(var(--text-muted)); }
+.status-in_progress { background: hsl(var(--accent-muted)); color: hsl(var(--accent)); }
+.status-done        { background: hsl(var(--success-muted)); color: hsl(var(--success)); }
+.status-cancelled   { background: hsl(var(--border)); color: hsl(var(--text-muted)); text-decoration: line-through; }
