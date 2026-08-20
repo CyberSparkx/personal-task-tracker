@@ -1,0 +1,32 @@
+{
+  "name": "TaskFlow",
+  "short_name": "TaskFlow",
+  "description": "Personal task manager with calendar sync and notifications",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0f0f1a",
+  "theme_color": "#0f0f1a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "New Task",
+      "url": "/dashboard?new=1",
+      "description": "Create a new task"
+    }
+  ]
+}
